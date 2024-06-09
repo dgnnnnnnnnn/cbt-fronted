@@ -60,8 +60,8 @@ function App() {
 
       <div className={`main-bg ${isHovered ? 'blur' : ''}`}>  { /* 블러처리 스위치를 위한 코드 */}
         <div className="title-message">
-          <h1><span class='title-message-top'>Yuhan</span> <br />
-            <span class='title-message-bottom'>Students Certificate</span></h1>
+          <h1><span className='title-message-top'>Yuhan</span> <br />
+            <span className='title-message-bottom'>Students Certificate</span></h1>
         </div>
 
         { /* 검색상자 import */}
