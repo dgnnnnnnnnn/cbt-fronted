@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // fortawesome에서 SVG 아이콘 import
 import { faAppleWhole } from '@fortawesome/free-solid-svg-icons';
 import { faUser } from '@fortawesome/free-regular-svg-icons';
+import { Link } from 'react-router-dom'; // 리액트 라우터
 import './menustyle.css'; // CSS 파일
 
 function Menu({ setIsHovered }) {
@@ -23,138 +24,90 @@ function Menu({ setIsHovered }) {
     };
 
 
+    const departments = [
+        {
+            name: '공학부',
+            majors: ['기계시스템전공', '소방설비안전전공', '전기공학전공', '전자공학전공', '컴퓨터소프트웨어전공', '게임콘텐츠전공', '인공지능전공', '컴퓨터정보통신전공', 'IT비즈니스전공', '기계설계전공', '3D프린팅금형전공', '자동화공학과']
+        },
+        {
+            name: '디자인문화학부',
+            majors: ['산업디자인전공', '시각디자인전공', '패션디자인전공', '실내건축전공', '광고미디어전공', '방송영상전공', '애니메이션웹툰전공', '방송문예창작전공', '방송연예전공']
+
+        },
+        {
+            name: '건강보건학부',
+            majors: ['식품영양학과', '보건의료행정학과', '작업치료과', '반려동물보건학과', '응급구조과']
+  
+        },
+        {
+            name: '건강생활학부',
+            majors: ['유한바이오제약전공', '유한생명화공전공', '피부메이크업전공', '뷰티화장품전공', '사회복지전공', '스포츠재활전공', '반려동물산업전공', '호텔조리전공', '카페베이커리전공', '아동보육전공']
+ 
+        },
+        {
+            name: '비즈니스학부',
+            majors: ['호텔관광전공', '일본비즈니스전공', '경영정보전공', '세무회계전공', '항공서비스학과', '항공경영전공', '유통물류전공', '중국비즈니스전공']
+  
+        }
+    ];
+
+
 
 
     return (
         <>
             <header className="navbar sticky">
-                <a href="#" className="logo"><FontAwesomeIcon icon={faAppleWhole} /> YUJA</a>
+                <a href="/" className="logo"><FontAwesomeIcon icon={faAppleWhole} /> YUJA</a>
                 <div className="menu-btn" onClick={toggleMenu}>
                     <div className="menu-btn__lines"></div>
                 </div>
 
                 <ul className="menu-items">
-                    <li><a href="#" className="menu-item first-item">Home Page</a></li>
-                    <li>
-                        <a href="#" className="menu-item first-item">게시판</a>
-                    </li>
-                    <li>
-                        <a href="#" className="menu-item first-item">캘린더</a>
-                    </li>
-                    <li className="mega-menu-hover">
-                        <a href="#" className="menu-item first-item expand-btn"
-                        onMouseEnter={() => setIsHovered(true)}     
-                        onMouseLeave={() => setIsHovered(false)}
-                        >기출문제</a> {/* 블러처리를 위한 코드 */}
+
+                    <li className="mega-menu-hover"
+                        onMouseEnter={() => setIsHovered(true)}
+                        onMouseLeave={() => setIsHovered(false)}>
+                        <a href="#"
+                            className="menu-item first-item expand-btn"
+                        >
+                            과별 자격증
+                        </a>
+
                         <div className="mega-menu sample">
                             <div className="content">
-                                <div className="col">
-                                    <section>
-                                        <div className="menu-title">Category 1</div>
-                                        <a href="#" className="img-wrapper">
-                                            <span className="img"><img src="https://picsum.photos/400?random=1" alt="Random Image" /></span>
-                                        </a>
-                                        <p>Very beautiful.</p>
-                                    </section>
-                                </div>
-                                <div className="col">
-                                    <section>
-                                        <div className="menu-title">Category 2</div>
-                                        <ul className="mega-links">
-                                            <li><a href="#" className="menu-item">Item with a long menu name 1</a></li>
-                                            <li><a href="#" className="menu-item">Item with a long menu name 2</a></li>
-                                            <li><a href="#" className="menu-item">Item with a long menu name 3</a></li>
-                                            <li><a href="#" className="menu-item">Item with a long menu name 4</a></li>
-                                            <li><a href="#" className="menu-item">Item with a long menu name 5</a></li>
-                                        </ul>
-                                    </section>
-                                </div>
-                                <div className="col">
-                                    <section>
-                                        <div className="menu-title">Category 3</div>
-                                        <ul className="mega-links">
-                                            <li><a href="#" className="menu-item">Item 1</a></li>
-                                            <li><a href="#" className="menu-item">Item 2</a></li>
-                                            <li><a href="#" className="menu-item">Item 3</a></li>
-                                            <li><a href="#" className="menu-item">Item 4</a></li>
-                                            <li><a href="#" className="menu-item">Item 5</a></li>
-                                        </ul>
-                                    </section>
-                                </div>
-                                <div className="col">
-                                    <section>
-                                        <div className="menu-title">Category 4</div>
-                                        <ul className="mega-links">
-                                            <li><a href="#" className="menu-item">Item 1</a></li>
-                                            <li><a href="#" className="menu-item">Item 2</a></li>
-                                            <li><a href="#" className="menu-item">Item 3</a></li>
-                                            <li><a href="#" className="menu-item">Item 4</a></li>
-                                            <li><a href="#" className="menu-item">Item 5</a></li>
-                                        </ul>
-                                    </section>
-                                </div>
+                                {departments.map((dept, index) => (
+                                    <div className="col" key={index}>
+                                        <section>
+                                            <div className="menu-title">{dept.name}</div>
+                                            <ul className="mega-links">
+                                                {dept.majors.map((major, majorIndex) => (
+                                                    <li key={majorIndex}>
+                                                        <Link to={`/dp/${index + 1}/${majorIndex + 1}`} className="menu-item">
+                                                            {major}
+                                                        </Link>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </section>
+                                        {/* <div className="featured-image">
+                                            <img src={dept.featuredImage} alt={`${dept.name} 대표 이미지`} />
+                                        </div> */}
+                                    </div>
+                                ))}
                             </div>
                         </div>
+
+                    </li>
+                    <li><Link to="/board/jokbo" className="menu-item first-item">족보게시판</Link></li>
+                    <li>
+                        <a href="#" className="menu-item first-item">질문게시판</a>
                     </li>
                     <li>
-                        <a href="#" className="menu-item first-item expand-btn"
-                        onMouseEnter={() => setIsHovered(true)}
-                        onMouseLeave={() => setIsHovered(false)}>자격증</a>
-                        <div className="mega-menu blog sample">
-                            <div className="content">
-                                <div className="col">
-                                    <a href="#" className="img-wrapper">
-                                        <span className="img"><img src="https://picsum.photos/400?random=2" alt="Random Image" /></span>
-                                    </a>
-                                    <div className="menu-title">Your Title</div>
-                                    <p>
-                                        I looked at a lot of menus, something is wrong everywhere.
-                                        In this menu, in my opinion, I took into account all the shortcomings.
-                                        Simple and clear code in pure JS. No Jquery, Bootstrap and other libraries are closed when you click outside the area and press Esc.
-                                    </p>
-                                    <a href="#" className="read-more">read more</a>
-                                </div>
-                                <div className="col">
-                                    <a href="#" className="img-wrapper">
-                                        <span className="img"><img src="https://picsum.photos/400?random=3" alt="Random Image" /></span>
-                                    </a>
-                                    <div className="menu-title">Your Title</div>
-                                    <p>
-                                        I looked at a lot of menus, something is wrong everywhere.
-                                        In this menu, in my opinion, I took into account all the shortcomings.
-                                        Simple and clear code in pure JS. No Jquery, Bootstrap and other libraries are closed when you click outside the area and press Esc.
-                                    </p>
-                                    <a href="#" className="read-more">read more</a>
-                                </div>
-                                <div className="col">
-                                    <a href="#" className="img-wrapper">
-                                        <span className="img"><img src="https://picsum.photos/400?random=4" alt="Random Image" /></span>
-                                    </a>
-                                    <div className="menu-title">Your Title</div>
-                                    <p>
-                                        I looked at a lot of menus, something is wrong everywhere.
-                                        In this menu, in my opinion, I took into account all the shortcomings.
-                                        Simple and clear code in pure JS. No Jquery, Bootstrap and other libraries are closed when you click outside the area and press Esc.
-                                    </p>
-                                    <a href="#" className="read-more">read more</a>
-                                </div>
-                                <div className="col">
-                                    <a href="#" className="img-wrapper">
-                                        <span className="img"><img src="https://picsum.photos/400?random=5" alt="Random Image" /></span>
-                                    </a>
-                                    <div className="menu-title">Your Title</div>
-                                    <p>
-                                        I looked at a lot of menus, something is wrong everywhere.
-                                        In this menu, in my opinion, I took into account all the shortcomings.
-                                        Simple and clear code in pure JS. No Jquery, Bootstrap and other libraries are closed when you click outside the area and press Esc.
-                                    </p>
-                                    <a href="#" className="read-more">read more</a>
-                                </div>
-                            </div>
-                        </div>
+                        <Link to="/board/free" className="menu-item first-item">자유게시판</Link>
                     </li>
+
                     <li><a href="#" className="menu-item first-item">
-                        <FontAwesomeIcon icon={faUser} style={{fontSize: '18px' }} /></a></li>
+                        <FontAwesomeIcon icon={faUser} style={{ fontSize: '18px' }} /></a></li>
 
                 </ul>
 

@@ -5,9 +5,9 @@
 .main-bg {
     height: 700px;
     /* background-color: #121010; */
-    background-image: url('./img/main-img2.png'); 
+    background-image: url('./img/main-img.png'); 
     background-size: cover;
-    background-position: center;
+    background-position: center
   }
 
   /* remove rounding from cards, buttons and inputs */
