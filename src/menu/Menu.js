@@ -4,6 +4,7 @@ import { faAppleWhole } from '@fortawesome/free-solid-svg-icons';
 import { faUser } from '@fortawesome/free-regular-svg-icons';
 import { Link } from 'react-router-dom'; // 리액트 라우터
 import './menustyle.css'; // CSS 파일
+import UserSubmenu from './UserSubmenu';
 
 function Menu({ setIsHovered }) {
     const [isOpen, setIsOpen] = useState(false);
@@ -37,17 +38,17 @@ function Menu({ setIsHovered }) {
         {
             name: '건강보건학부',
             majors: ['식품영양학과', '보건의료행정학과', '작업치료과', '반려동물보건학과', '응급구조과']
-  
+
         },
         {
             name: '건강생활학부',
             majors: ['유한바이오제약전공', '유한생명화공전공', '피부메이크업전공', '뷰티화장품전공', '사회복지전공', '스포츠재활전공', '반려동물산업전공', '호텔조리전공', '카페베이커리전공', '아동보육전공']
- 
+
         },
         {
             name: '비즈니스학부',
             majors: ['호텔관광전공', '일본비즈니스전공', '경영정보전공', '세무회계전공', '항공서비스학과', '항공경영전공', '유통물류전공', '중국비즈니스전공']
-  
+
         }
     ];
 
@@ -105,9 +106,11 @@ function Menu({ setIsHovered }) {
                     <li>
                         <Link to="/board/free" className="menu-item first-item">자유게시판</Link>
                     </li>
-
+                    <UserSubmenu />
+                    {/* 기존 코드:
                     <li><a href="#" className="menu-item first-item">
-                        <FontAwesomeIcon icon={faUser} style={{ fontSize: '18px' }} /></a></li>
+                    <FontAwesomeIcon icon={faUser} style={{ fontSize: '18px' }} />
+                    </a></li> */}
 
                 </ul>
 
