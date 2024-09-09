@@ -125,7 +125,7 @@ const SliderWrapper = styled.div`
     box-sizing: border-box;
   }
 
-    .slide-content {
+  .slide-content {
     background-color: #fafafa;
     border-radius: 3px;
     overflow: hidden;
@@ -134,17 +134,13 @@ const SliderWrapper = styled.div`
     flex-direction: column;
     transition: all 0.3s ease;
     margin: 10px 0;
-    position: relative;
-
-    &:hover .slide-overlay {
-      opacity: 1;
-    }
   }
 
   .slide-image {
     width: 100%;
     height: 200px;
     overflow: hidden;
+    position: relative;  // overlay의 기준점으로 잡기 위해 포지션 추가
 
     img {
       width: 100%;
@@ -153,7 +149,7 @@ const SliderWrapper = styled.div`
     }
   }
 
-  .slide-text {
+.slide-text {
     padding: 15px;
     flex-grow: 1;
     display: flex;
@@ -252,9 +248,16 @@ const SliderWrapper = styled.div`
     transition: opacity 0.3s ease;
   }
 
+  .slide-content:hover .slide-overlay {
+    opacity: 1;
+  }
+
+  // 슬라이드에 자격증 일정을 간단히 표시하는 이미지 overlay
   .slide-overlay p {
     color: #ffffff; // 명시적으로 p 태그의 색상을 흰색으로 설정
     margin: 5px 0; // 상하 여백 추가
+    font-size: 12px;
+    text-align: center;
   }
 
   .slide-overlay .fa-icon {
@@ -468,12 +471,18 @@ function Depart() {
             {currentMajor} 주요 자격증
           </SectionTitle>
           <SliderWrapper>
+            {/* 자격증 슬라이드 내용 */}
             <Slider {...settings}>
               {currentCertifications.map((cert, index) => (
                 <div key={index}>
                   <div className="slide-content">
                     <div className="slide-image">
                       <img src={cert.image} alt={cert.name} />
+                      <div className="slide-overlay">
+                        {/* 슬라이드에 hover 했을 때 */}
+                        <p><FontAwesomeIcon icon={faPencil} className="fa-icon" />{cert.signUpPeriod}</p>
+                        <p><FontAwesomeIcon icon={faTools} className="fa-icon" />{cert.examDate}</p>
+                      </div>
                     </div>
                     <div className="slide-text">
                       <h3>{cert.name}</h3>
@@ -482,10 +491,6 @@ function Depart() {
                         <span className="exam-tag">필기(연{cert.examInfo.written}회)</span>
                         <span className="exam-tag">실기(연{cert.examInfo.practical}회)</span>
                       </div>
-                    </div>
-                    <div className="slide-overlay">
-                      <p><FontAwesomeIcon icon={faPencil} className="fa-icon" />{cert.signUpPeriod}</p>
-                      <p><FontAwesomeIcon icon={faTools} className="fa-icon" />{cert.examDate}</p>
                     </div>
                   </div>
                 </div>
@@ -502,7 +507,7 @@ function Depart() {
             </SectionTitle>
             <CertificationCalendar
               events={calendarEvents}
-              // title={<SectionTitle>주요 시험일정</SectionTitle>}
+            // title={<SectionTitle>주요 시험일정</SectionTitle>}
             />
           </CalendarContainer>
         </BackgroundCalendar>

@@ -28,6 +28,7 @@
   position: relative;
 }
 
+/* 왼쪽 영역 사용자 이미지 */
 .mypage-user-icon-wrapper {
   position: relative;
   width: 66px;
@@ -62,6 +63,7 @@
 .mypage-menu-list {
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
 
 .mypage-menu-item {
@@ -78,6 +80,8 @@
   cursor: pointer;
   border-radius: 5px;
   margin-bottom: 5px;
+  width: 100%; /* 모든 메뉴 항목의 너비를 100%로 설정 */
+  text-align: left;
 }
 
 .mypage-menu-item:hover {
@@ -92,6 +96,61 @@
 
 .mypage-menu-icon {
   margin-right: 10px;
+}
+
+/* 일반 menu-item과 관리자 메뉴 사이의 간격  */
+.mypage-admin-section {
+  margin-top: 20px;
+  width: 100%;
+}
+
+.mypage-admin-item {
+  background-color: #d0d0f1;
+  justify-content: space-between;
+}
+
+.mypage-admin-item.mypage-admin-active {
+  background-color: #b4b4ff;
+}
+
+/* @@ */
+.mypage-admin-content {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.mypage-admin-label {
+  flex-grow: 1;
+  text-align: left;
+}
+
+.mypage-admin-caret {
+  transition: transform 0.3s ease;
+  margin-left: 10px;
+}
+/* @@ */
+
+.mypage-admin-caret {
+  transition: transform 0.3s ease;
+}
+
+.mypage-admin-caret-open {
+  transform: rotate(180deg);
+}
+
+.mypage-admin-dropdown {
+  background-color: #f0f0f0;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.mypage-admin-subitem {
+  padding-left: 30px;
+}
+
+.mypage-admin-subitem:hover {
+  background-color: #e0e0e0;
 }
 
 /* 선택 된 메뉴가 없을 때 */
