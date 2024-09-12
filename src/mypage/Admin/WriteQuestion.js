@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck, faPenToSquare, faRotateRight, faNoteSticky } from '@fortawesome/free-solid-svg-icons';
 import './writequestion.css';
 import addImageIcon from '../../img/boardimg/add-image-icon.png';
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 
 // 이미지 업로드 모달창
 const StyledDialog = styled(Dialog)`
@@ -18,7 +18,7 @@ const StyledDialog = styled(Dialog)`
 
 
 
-// 자격증 선택 select-box 관련
+// 자격증 선택 select-box 관련(흔들리는 애니메이션)
 const shakeAnimation = keyframes`
   0% { transform: translateX(0); }
   25% { transform: translateX(-5px); }
@@ -27,15 +27,29 @@ const shakeAnimation = keyframes`
   100% { transform: translateX(0); }
 `;
 
-const StyledAutocomplete = styled(Autocomplete)`
-  width: 300px;  // 선택창 가로길이 
-  &.error {
+// 게시물 제목 입력란
+const ExpandingTextField = styled(TextField)`
+  transition: width 0.3s ease-in-out;
+  width: ${props => props.expanded ? '300px' : '150px'};
+  ${props => props.$error && css`
     animation: ${shakeAnimation} 0.5s ease-in-out;
     .MuiOutlinedInput-notchedOutline {
       border-color: #760000;
       border-width: 2px;
     }
-  }
+  `}
+`;
+
+// error prop가 true면 흔들리는 애니메이션과 빨간색 테두리를 적용
+const StyledAutocomplete = styled(Autocomplete)`
+  width: 300px;  // 선택창 가로길이 
+  ${props => props.$error && css`
+    animation: ${shakeAnimation} 0.5s ease-in-out;
+    .MuiOutlinedInput-notchedOutline {
+      border-color: #760000;
+      border-width: 2px;
+    }
+  `}
 `;
 
 const HeaderContainer = styled.div`
@@ -98,7 +112,8 @@ const theme = createTheme({
   },
 });
 
-function WriteQuestion({ onClose }) {
+// AdminSetQuestion.js에서 WriteQuestion 컴포넌트에 onQuestionAdded prop을 전달(완성된 문제)
+function WriteQuestion({ onClose, onQuestionAdded, editingQuestion }) {
   const navigate = useNavigate();
   const formRef = useRef(null);
   const [questionType, setQuestionType] = useState('');
@@ -117,6 +132,70 @@ function WriteQuestion({ onClose }) {
   // 자격증 선택 select-box
   const [selectedCertificate, setSelectedCertificate] = useState(null);
   const [certificateError, setCertificateError] = useState(false);
+  // 게시물 입력란 관련
+  const [title, setTitle] = useState('');
+  const [titleExpanded, setTitleExpanded] = useState(false);
+  const [titleError, setTitleError] = useState(false);
+
+
+  // 등록된 문제 수정관련
+  const [editingIndex, setEditingIndex] = useState(null);
+
+  useEffect(() => {
+    if (editingQuestion) {
+      // 수정 모드일 때 초기 상태 설정
+      setTitle(editingQuestion.title);
+      setSelectedCertificate(editingQuestion.certificate);
+      setQuestionType(editingQuestion.type);
+      setQuestion(editingQuestion.question);
+      if (editingQuestion.type === '객관식') {
+        setOptions(editingQuestion.options || []);
+        setAnswers(editingQuestion.answers || []);
+        setOptionCount(editingQuestion.options ? editingQuestion.options.length : 0);
+      } else {
+        setNote(editingQuestion.note || '');
+      }
+      setImages(editingQuestion.images ? editingQuestion.images.map(url => ({ preview: url })) : []);
+    }
+  }, [editingQuestion]);
+
+  const handleTitleFocus = () => {
+    setTitleExpanded(true);
+  };
+
+  const handleTitleBlur = () => {
+    setTitleExpanded(false);
+  };
+  const handleCompleteWriting = () => {
+    let hasError = false;
+
+    if (!title) {
+      setTitleError(true);
+      setTimeout(() => setTitleError(false), 500);
+      hasError = true;
+    }
+
+    if (!selectedCertificate) {
+      setCertificateError(true);
+      setTimeout(() => setCertificateError(false), 500);
+      hasError = true;
+    }
+
+    if (!hasError) {
+      const newQuestion = {
+        title: title,
+        certificate: selectedCertificate,
+        type: questionType,
+        question: question,
+        options: questionType === '객관식' ? options : null,
+        answers: questionType === '객관식' ? answers : null,
+        note: questionType === '주관식' ? note : null,
+        images: images.map(img => img.preview),
+      };
+      onQuestionAdded(newQuestion);
+      onClose();
+    }
+  };
 
 
   const handleQuestionTypeChange = (type) => {
@@ -180,7 +259,14 @@ function WriteQuestion({ onClose }) {
       images: images.map(img => img.preview),
       certificate: selectedCertificate
     };
-    setRegisteredQuestions([...registeredQuestions, newQuestion]);
+    if (editingIndex !== null) {
+      const updatedQuestions = [...registeredQuestions];
+      updatedQuestions[editingIndex] = newQuestion;
+      setRegisteredQuestions(updatedQuestions);
+      setEditingIndex(null);
+    } else {
+      setRegisteredQuestions([...registeredQuestions, newQuestion]);
+    }
     resetForm();
   };
 
@@ -217,6 +303,24 @@ function WriteQuestion({ onClose }) {
     onClose();
   };
 
+
+  // 등록된 문제를 수정하는 클릭 핸들러
+  const handleEdit = (index) => {
+    const questionToEdit = registeredQuestions[index];
+    setQuestionType(questionToEdit.type);
+    setQuestion(questionToEdit.question);
+    if (questionToEdit.type === '객관식') {
+      setOptions(questionToEdit.options);
+      setAnswers(questionToEdit.answers);
+      setOptionCount(questionToEdit.options.length);
+    } else {
+      setNote(questionToEdit.note);
+    }
+    setImages(questionToEdit.images.map(url => ({ preview: url })));
+    setSelectedCertificate(questionToEdit.certificate);
+    setEditingIndex(index);
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <div className="jokbo-write-container">
@@ -224,6 +328,16 @@ function WriteQuestion({ onClose }) {
           <div className="question-register-area">
             <HeaderContainer>
               <p><FontAwesomeIcon icon={faPenToSquare} /> 문제 등록</p>
+              <ExpandingTextField
+                label="게시물 제목"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                onFocus={handleTitleFocus}
+                onBlur={handleTitleBlur}
+                expanded={titleExpanded}
+                $error={titleError}
+              // $error prop 전달로 입력란이 비었을 시 애니메이션 효과 적용
+              />
               <StyledAutocomplete
                 options={certificates}
                 renderInput={(params) => <TextField {...params} label="자격증 선택" />}
@@ -231,7 +345,7 @@ function WriteQuestion({ onClose }) {
                 onChange={(event, newValue) => {
                   setSelectedCertificate(newValue);
                 }}
-                className={certificateError ? 'error' : ''}
+                $error={certificateError}
               />
             </HeaderContainer>
             <form ref={formRef} onSubmit={handleSubmit}>
@@ -354,6 +468,22 @@ function WriteQuestion({ onClose }) {
                 >
                   <FontAwesomeIcon icon={faRotateRight} />
                 </Button>
+                <Button
+                  onClick={handleCompleteWriting}
+                  variant="contained"
+                  color="primary"
+                  className="complete-button"
+                >
+                  작성완료
+                </Button>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  onClick={handleCancel}
+                  className="cancel-button"
+                >
+                  작성취소
+                </Button>
               </div>
             </div>
           </div>
@@ -363,10 +493,17 @@ function WriteQuestion({ onClose }) {
           <p><FontAwesomeIcon icon={faNoteSticky} /> 등록된 문제</p>
           {registeredQuestions.map((q, index) => (
             <div key={index} className="registered-question">
-              <p className="question-title">
-                <span className="question-number">{index + 1}. </span>
-                {q.question}
-              </p>
+              <div className="question-header">
+                <p className="question-title">
+                  <span className="question-number">{index + 1}. </span>
+                  {q.question}
+                </p>
+                <FontAwesomeIcon
+                  icon={faPenToSquare}
+                  onClick={() => handleEdit(index)}
+                  className="edit-icon"
+                />
+              </div>
               {q.images && q.images.length > 0 && (
                 <div className="question-images">
                   {q.images.map((image, i) => (
@@ -391,9 +528,6 @@ function WriteQuestion({ onClose }) {
           ))}
         </div>
 
-        <Button variant="contained" color="secondary" onClick={handleCancel} style={{ marginTop: '20px', backgroundColor: '#413839' }}>
-          작성취소
-        </Button>
 
         <StyledDialog open={openModal} onClose={handleCloseModal}>
           <DialogTitle>알림</DialogTitle>
@@ -406,9 +540,6 @@ function WriteQuestion({ onClose }) {
             </Button>
           </DialogActions>
         </StyledDialog>
-        <Button variant="contained" color="secondary" onClick={onClose} style={{ marginTop: '20px', backgroundColor: '#413839' }}>
-          닫기
-        </Button>
       </div>
     </ThemeProvider>
   );

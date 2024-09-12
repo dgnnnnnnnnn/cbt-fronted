@@ -56,6 +56,47 @@
 .admin-set-question-bottom {
   height: 85%;
   padding: 10px;
+  display: flex;
+  flex-direction: column-reverse;
+  overflow-y: auto;
+}
+
+
+.added-question-item {
+  height: 40px;
+  width: 100%;
+  background-color: #f5fdf5;
+  border-bottom: 1.2px solid #ececec;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+  font-size: 14px;
+  color: #333;
+}
+
+.edit-icon {
+  cursor: pointer;
+  color: #333333;
+  transition: color 0.3s ease;
+}
+
+.edit-icon:hover {
+  color: #070707;
+}
+
+@keyframes clickEffect {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.edit-icon:active {
+  animation: clickEffect 0.3s ease;
+}
+
+.added-question-item:first-child {
+  border-bottom: none;
 }
 
 .admin-set-question-icon {

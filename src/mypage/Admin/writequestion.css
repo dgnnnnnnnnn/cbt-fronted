@@ -82,6 +82,7 @@
     margin-top: 15px;  /* '등록된 문제' 위쪽 공간 추가 */
   }
   
+  /* 등록된 문제 영역의 개별 문제들(테두리 등등)*/ 
   .registered-question {
     border: 1px solid #ddd;
     padding: 15px;
@@ -131,6 +132,42 @@
     color: rgb(126, 32, 32);
     margin-top: 5px;
   }
+
+
+  /* 등록된 문제 레이아웃 관련 */
+  .question-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  /* 수정 버튼의 동적효과 */
+  @keyframes clickEffect {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.2);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  
+  .edit-icon {
+    cursor: pointer;
+    color: #4CAF50;
+    font-size: 1.2em;
+    transition: color 0.3s ease;
+  }
+  
+  .edit-icon:hover {
+    color: #45a049;
+  }
+  
+  .edit-icon:active {
+    animation: clickEffect 0.3s ease;
+  }
   
 
   /* 문제 등록란 속성들  */
@@ -142,7 +179,7 @@
 
   .question-number {
     font-family: 'NanumSquareNeoBold', sans-serif;
-    color: #65704a;
+    color: #1b1a1a;
     font-weight: bold;
     
   }
@@ -231,7 +268,35 @@
   /* 버튼 그룹 */
   .button-group {
     display: flex;
+    justify-content: flex-end;
     gap: 10px;
+  }
+
+  .submit-button,
+.reset-button,
+.complete-button,
+.cancel-button {
+  min-width: 40px;
+  height: 40px;
+  padding: 0 !important;
+}
+  /* 작성완료, 작성취소 버튼 */
+  .complete-button {
+    background-color: #4CAF50 !important;
+    color: white !important;
+  }
+  
+  .complete-button:hover {
+    background-color: #45a049 !important;
+  }
+
+  .cancel-button {
+    background-color: #413839 !important;
+    color: white !important;
+  }
+  
+  .cancel-button:hover {
+    background-color: #2c2626 !important;
   }
   
   .submit-button {
