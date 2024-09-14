@@ -100,9 +100,7 @@ function Menu({ setIsHovered }) {
 
                     </li>
                     <li><Link to="/board/jokbo" className="menu-item first-item">족보게시판</Link></li>
-                    <li>
-                        <a href="#" className="menu-item first-item">질문게시판</a>
-                    </li>
+                    <li><Link to="/board/cert" className="menu-item first-item">문제은행</Link></li>
                     <li>
                         <Link to="/board/free" className="menu-item first-item">자유게시판</Link>
                     </li>

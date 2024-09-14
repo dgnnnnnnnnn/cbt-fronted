@@ -7,6 +7,7 @@ import MenuBar from './menu/Menu'; // 상단 메뉴바
 import SearchBox from './search/SearchBox'; // 메인페이지 검색바
 import Depart from './department/Depart.js'; // 학과페이지(Link는 Menu.js에서)
 import JokboBoard from './Board/JokboBoard.js'; // 족보게시판
+import CertificationBoard from './Board/CertificationBoard/CertificationBoard.js'
 import FreeBoard from './Board/FreeBoard/FreeBoard.js'
 import MyPage from './mypage/MyPage.js'
 
@@ -163,6 +164,7 @@ function App() {
             } />
             <Route path="/dp/:deptId/:majorId" element={<Depart />} />
             <Route path="/board/jokbo/*" element={<JokboBoard />}/>
+            <Route path="/board/cert/*" element={<CertificationBoard />}/>
             <Route path="/board/free/*" element={<FreeBoard />}/>
             <Route path="/mypage" element={<MyPage />}/>
           </Routes>
