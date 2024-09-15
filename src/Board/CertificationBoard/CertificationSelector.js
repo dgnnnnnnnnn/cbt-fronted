@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
+import { Autocomplete, TextField, ClickAwayListener, Popper } from '@mui/material';
 
 const SelectorContainer = styled.div`
   --gap: 1.2px;
@@ -8,7 +9,7 @@ const SelectorContainer = styled.div`
   padding: var(--gap);
   display: inline-flex;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   margin-bottom: 20px;
   align-self: flex-start;
 `;
@@ -26,8 +27,15 @@ const Option = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: ${props => props.isFirst ? 'bold' : 'normal'}; 
-  // 첫 번째 옵션에 대해 bold 적용 -> props.isFirst가 true일 때 'bold' 그렇지 않으면 'normal'
+  font-weight: ${props => props.isFirst ? 'bold' : 'normal'};
+  
+  ${props => props.isOtherCert && `
+    &:after {
+      content: ': ${props.otherCertName}';
+      color: red;
+      margin-left: 5px;
+    }
+  `}
 `;
 
 const Slider = styled.div`
@@ -35,50 +43,161 @@ const Slider = styled.div`
   top: var(--gap);
   left: var(--gap);
   height: calc(100% - calc(var(--gap) * 2));
-  width: calc(100% - calc(var(--gap) * 2));
   border-radius: 24px;
   transition: 0.3s ease;
   background-color: #ffffff;
   z-index: 1;
 `;
 
+
+const SearchContainer = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  z-index: 3;
+  border-radius: 25px;
+  border: 2px solid #d9d9d9;
+`;
+
+const CustomPopper = styled(Popper)`
+  & .MuiAutocomplete-paper {
+    margin-top: 8px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  }
+`;
+
+// 전체 자격증 목록
+const allCertifications = [
+  '정보처리기사', '리눅스마스터', '네트워크관리사', '정보보안기사', '빅데이터분석기사',
+  'SQLD', 'CCNA', 'AWS Solutions Architect', 'CISA', '전자계산기조직응용기사',
+  '전기기사', '건축기사', '토목기사', '조경기사', '화학분석기사',
+  // ... 더 많은 자격증 추가
+];
+
 const CertificationSelector = ({ options, selectedOption, onSelect }) => {
   const [sliderStyle, setSliderStyle] = useState({});
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
+  const [selectedOtherCert, setSelectedOtherCert] = useState(null);
   const containerRef = useRef(null);
   const optionRefs = useRef([]);
 
-  useEffect(() => {
-    const updateSliderStyle = () => {
-      const selectedIndex = options.findIndex(option => option === selectedOption);
-      if (optionRefs.current[selectedIndex]) {
-        const option = optionRefs.current[selectedIndex];
-        setSliderStyle({
-          width: `${option.offsetWidth - 2}px`,
-          transform: `translateX(${option.offsetLeft}px)`
-        });
-      }
-    };
+  const updateSliderStyle = () => {
+    let selectedIndex = options.findIndex(option => option === selectedOption);
+    if (selectedOption === '기타 자격증' && selectedOtherCert) {
+      const existingIndex = options.findIndex(option => option === selectedOtherCert);
+      selectedIndex = existingIndex !== -1 ? existingIndex : options.length;
+    }
+    if (optionRefs.current[selectedIndex]) {
+      const option = optionRefs.current[selectedIndex];
+      setSliderStyle({
+        width: `${option.offsetWidth - 2}px`, // 너비를 2px 줄임
+        transform: `translateX(${option.offsetLeft}px)`
+      });
+    }
+  };
 
+  useEffect(() => {
     updateSliderStyle();
     window.addEventListener('resize', updateSliderStyle);
     return () => window.removeEventListener('resize', updateSliderStyle);
-  }, [selectedOption, options]);
+  }, [selectedOption, options, selectedOtherCert]);
+
+  const handleOptionClick = (option) => {
+    if (option === '기타 자격증') {
+      setShowSearch(true);
+    } else {
+      onSelect(option);
+      setShowSearch(false);
+      setSelectedOtherCert(null);
+    }
+  };
+
+  const handleSearchSelect = (event, newValue) => {
+    if (newValue) {
+        const existingIndex = options.findIndex(option => option === newValue);
+        if (existingIndex !== -1) {
+            onSelect(newValue);
+            setSelectedOtherCert(null);
+        } else {
+            setSelectedOtherCert(newValue);
+            onSelect('기타 자격증', newValue);
+        }
+        setShowSearch(false);
+    }
+};
+
+  const handleClickAway = () => {
+    setShowSearch(false);
+    if (selectedOption === '기타 자격증' && !selectedOtherCert) {
+      onSelect(options[0]);
+    }
+  };
+
+  const isOptionSelected = (option) => 
+    option === selectedOption || 
+    (selectedOption === '기타 자격증' && option === selectedOtherCert);
 
   return (
-    <SelectorContainer ref={containerRef}>
-      <Slider style={sliderStyle} />
-      {options.map((option, index) => (
+    <ClickAwayListener onClickAway={handleClickAway}>
+      <SelectorContainer ref={containerRef}>
+        <Slider style={sliderStyle} />
+        {options.map((option, index) => (
+          <Option
+            key={option}
+            isSelected={isOptionSelected(option)}
+            isFirst={index === 0}
+            onClick={() => handleOptionClick(option)}
+            ref={el => optionRefs.current[index] = el}
+          >
+            {option}
+          </Option>
+        ))}
         <Option
-          key={option}
-          isSelected={option === selectedOption}
-          isFirst={index === 0} // 첫 번째 옵션 여부를 prop으로 전달
-          onClick={() => onSelect(option)}
-          ref={el => optionRefs.current[index] = el}
+          isSelected={selectedOption === '기타 자격증' && !options.includes(selectedOtherCert)}
+          onClick={() => handleOptionClick('기타 자격증')}
+          ref={el => optionRefs.current[options.length] = el}
+          isOtherCert={selectedOption === '기타 자격증' && selectedOtherCert && !options.includes(selectedOtherCert)}
+          otherCertName={selectedOtherCert && !options.includes(selectedOtherCert) ? selectedOtherCert : ''}
         >
-          {option}
+          기타 자격증
         </Option>
-      ))}
-    </SelectorContainer>
+        {showSearch && (
+          <SearchContainer>
+            <Autocomplete
+              options={allCertifications}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  variant="standard"
+                  placeholder="자격증 검색"
+                  InputProps={{
+                    ...params.InputProps,
+                    disableUnderline: true,
+                  }}
+                  fullWidth
+                />
+              )}
+              onChange={handleSearchSelect}
+              onInputChange={(event, newInputValue) => {
+                setSearchValue(newInputValue);
+              }}
+              style={{ width: '100%' }}
+              PopperComponent={CustomPopper}
+              disablePortal={false}
+            />
+          </SearchContainer>
+        )}
+      </SelectorContainer>
+    </ClickAwayListener>
   );
 };
 

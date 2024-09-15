@@ -36,10 +36,9 @@ const rawInitialCerts = [
     { title: '정보보안기사 문제 모음', author: 'user4', createdAt: '2024-08-10T14:20:00', views: 180, likes: 20, summary: '정보보안기사 시험 문제를 모아놓은 자료입니다.', certType: '정보보안기사' },
     { title: '네트워크관리사 핵심정리', author: 'user3', createdAt: '2024-08-11T09:45:00', views: 200, likes: 15, summary: '네트워크관리사 시험 핵심 내용을 정리한 자료입니다.', certType: '네트워크관리사' },
     { title: '정보보안기사 문제 모음', author: 'user4', createdAt: '2024-08-10T14:20:00', views: 180, likes: 20, summary: '정보보안기사 시험 문제를 모아놓은 자료입니다.', certType: '정보보안기사' },
+    { title: '조경기사 테스트', author: 'user4', createdAt: '2024-08-10T14:20:00', views: 180, likes: 20, summary: '정보보안기사 시험 문제를 모아놓은 자료입니다.', certType: '조경기사' },
 
 ];
-
-const certTypes = ['내 학과 전체 자격증', '정보처리기사', '리눅스마스터', '네트워크관리사', '정보보안기사', '빅데이터분석기사'];
 
 
 function processInitialCerts(certs) {
@@ -125,14 +124,22 @@ function CertificationList() {
     const [selectedCert, setSelectedCert] = useState(null);
     const [openDialog, setOpenDialog] = useState(false);
     const [selectedCertType, setSelectedCertType] = useState('내 학과 전체 자격증');
+    const [selectedOtherCert, setSelectedOtherCert] = useState(null);
+    const [myDepartmentCertifications, setMyDepartmentCertifications] = useState([
+        '정보처리기사', '리눅스마스터', '네트워크관리사', '정보보안기사', '빅데이터분석기사'
+    ]);
 
     useEffect(() => {
         const fetchCerts = async () => {
             await new Promise(resolve => setTimeout(resolve, 500));
             setCerts(initialCerts);
+            // 여기서 나중에 서버에서 사용자의 학과 자격증 목록을 가져올 수 있습니다.
+            // setMyDepartmentCertifications(fetchedDepartmentCertifications);
         };
         fetchCerts();
     }, []);
+
+    const certTypes = ['내 학과 전체 자격증', ...myDepartmentCertifications];
 
     const handleAddToCart = (id) => {
         console.log(`자격증 문제 ID ${id}를 장바구니에 추가했습니다.`);
@@ -151,9 +158,11 @@ function CertificationList() {
         setSelectedCert(null); /* Dialog를 닫을 때 selectedCert를 null로 리셋 */
     };
 
-    const handleCertTypeSelect = (certType) => {
+    const handleCertTypeSelect = (certType, otherCert = null) => {
         setSelectedCertType(certType);
+        setSelectedOtherCert(otherCert);
     };
+
 
     const [paginationModel, setPaginationModel] = useState({
         pageSize: 15, // 한 페이지에 15 게시글 표시
@@ -167,7 +176,9 @@ function CertificationList() {
 
     const filteredCerts = selectedCertType === '내 학과 전체 자격증'
         ? certs
-        : certs.filter(cert => cert.certType === selectedCertType || cert.isNotice);
+        : selectedCertType === '기타 자격증'
+            ? certs.filter(cert => cert.certType === selectedOtherCert || cert.isNotice)
+            : certs.filter(cert => cert.certType === selectedCertType || cert.isNotice);
 
     const columns = [
         {
@@ -218,29 +229,29 @@ function CertificationList() {
                 <CertificationSelector
                     options={certTypes}
                     selectedOption={selectedCertType}
-                    onSelect={handleCertTypeSelect}
+                    onSelect={(certType, otherCert) => handleCertTypeSelect(certType, otherCert)}
                 />
-            <div className="cert-list-grid" style={{ height: 891, width: '100%' }}>
-                <DataGrid
-                    className="super-app-theme"
-                    rows={filteredCerts}
-                    columns={columns}
-                    paginationModel={paginationModel}
-                    onPaginationModelChange={setPaginationModel}
-                    pageSizeOptions={[10]}
-                    sortModel={sortModel}
-                    onSortModelChange={setSortModel}
-                    disableRowSelectionOnClick
-                    onRowClick={handleRowClick}  // 이 부분을 추가합니다
-                    initialState={{
-                        sorting: {
-                            sortModel: [
-                                { field: 'isNotice', sort: 'desc' },
-                                { field: 'id', sort: 'desc' },
-                            ],
-                        },
-                    }}
-                    sx={{
+                <div className="cert-list-grid" style={{ height: 891, width: '100%' }}>
+                    <DataGrid
+                        className="super-app-theme"
+                        rows={filteredCerts}
+                        columns={columns}
+                        paginationModel={paginationModel}
+                        onPaginationModelChange={setPaginationModel}
+                        pageSizeOptions={[10]}
+                        sortModel={sortModel}
+                        onSortModelChange={setSortModel}
+                        disableRowSelectionOnClick
+                        onRowClick={handleRowClick}  // 이 부분을 추가합니다
+                        initialState={{
+                            sorting: {
+                                sortModel: [
+                                    { field: 'isNotice', sort: 'desc' },
+                                    { field: 'id', sort: 'desc' },
+                                ],
+                            },
+                        }}
+                        sx={{
                             '& .MuiDataGrid-cell:focus': {
                                 outline: 'none',
                             },
