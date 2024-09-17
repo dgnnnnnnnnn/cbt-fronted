@@ -22,11 +22,11 @@
     font-family: 'NanumSquareNeoBold', sans-serif;
   }
   
-  .jokbo-write-container {
+  .cert-write-container {
     max-width: 800px;
     margin: 0 auto;
     position: relative;
-  }
+}
   
   .question-register-background {
     background-color: #f9cd48;

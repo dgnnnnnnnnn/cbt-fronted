@@ -1,410 +1,189 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { TextField, ThemeProvider, LinearProgress, Dialog, DialogTitle, DialogContent, DialogActions, Button, createTheme, Checkbox, FormControlLabel, Autocomplete } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck, faPenToSquare, faRotateRight, faNoteSticky } from '@fortawesome/free-solid-svg-icons';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 import './jokbowritestyle.css';
-import addImageIcon from '../img/boardimg/add-image-icon.png';
-import styled, { keyframes } from 'styled-components';
 
-// 이미지 업로드 모달창
-const StyledDialog = styled(Dialog)`
-  .MuiDialog-paper {
-    background-color: #f8f9fa;
-    border-radius: 10px;
-    padding: 16px;
-  }
-`;
-
-
-
-// 자격증 선택 select-box 관련
-const shakeAnimation = keyframes`
-  0% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  50% { transform: translateX(5px); }
-  75% { transform: translateX(-5px); }
-  100% { transform: translateX(0); }
-`;
-
-const StyledAutocomplete = styled(Autocomplete)`
-  width: 300px;  // 선택창 가로길이 
-  &.error {
-    animation: ${shakeAnimation} 0.5s ease-in-out;
-    .MuiOutlinedInput-notchedOutline {
-      border-color: #760000;
-      border-width: 2px;
-    }
-  }
-`;
-
-const HeaderContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
-`;
-
-
-const certificates = [
-  "기계설계산업기사", "생산자동화산업기사", "공조냉동산업기사", "컴퓨터응용가공산업기사",
-  // ... 나머지 자격증 목록
-];
-
-const theme = createTheme({
-  typography: {
-    fontFamily: 'NanumSquareNeoBold, NanumSquareNeoLight, sans-serif',
-  },
-  components: {
-    MuiCssBaseline: {
-      styleOverrides: `
-        @font-face {
-          font-family: 'NanumSquareNeoBold';
-          src: url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-bRg.eot);
-          src: url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-bRg.eot?#iefix) format("embedded-opentype"), 
-               url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-bRg.woff) format("woff"), 
-               url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-bRg.ttf) format("truetype");
-          font-weight: normal;
-          font-style: normal;
-        }
-        @font-face {
-          font-family: 'NanumSquareNeoLight';
-          src: url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-aLt.eot);
-          src: url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-aLt.eot?#iefix) format("embedded-opentype"), 
-               url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-aLt.woff) format("woff"), 
-               url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-aLt.ttf) format("truetype");
-          font-weight: normal;
-          font-style: normal;
-        }
-      `,
-    },
-    MuiLinearProgress: {
-      styleOverrides: {
-        root: {
-          backgroundColor: '#d7b03d',
-          height: 10,
-          borderRadius: 5,
-        },
-        bar: {
-          backgroundColor: '#a88a33',
-        },
-      },
-    },
-    // palette: {
-    //   primary: {
-    //     main: '#ff0000',
-    //   },
-    // },
-  },
-});
-
-function JokboWrite() {
+const JokboWrite = () => {
+  const [content, setContent] = useState('');
+  const [title, setTitle] = useState('');
+  const [tags, setTags] = useState([]);
+  const [currentTag, setCurrentTag] = useState('');
+  const [isTagInputActive, setIsTagInputActive] = useState(false);
+  const tagInputRef = useRef(null);
+  const tagContainerRef = useRef(null);
   const navigate = useNavigate();
-  const formRef = useRef(null);
-  const [questionType, setQuestionType] = useState('');
-  const [question, setQuestion] = useState('');
-  const [optionCount, setOptionCount] = useState(0);
-  const [options, setOptions] = useState([]);
-  const [note, setNote] = useState('');
-  const [registeredQuestions, setRegisteredQuestions] = useState([]);
-  const [answers, setAnswers] = useState([]);
-  // 이미지 업로드 관련 속성들
-  const [images, setImages] = useState([]);
-  const [errorMessage, setErrorMessage] = useState('');
-  // 이미지 업로드 오류 모달창 속성들
-  const [openModal, setOpenModal] = useState(false);
-  const [modalMessage, setModalMessage] = useState('');
-  // 자격증 선택 select-box
-  const [selectedCertificate, setSelectedCertificate] = useState(null);
-  const [certificateError, setCertificateError] = useState(false);
 
+  // 폰트 크기 옵션(toolbar에 들어갈 거)
+  const fontSizeArr = ['8px', '9px', '10px', '11px', '12px', '14px', '16px', '18px', '20px', '22px', '24px', '26px', '28px', '36px'];
 
-  const handleQuestionTypeChange = (type) => {
-    setQuestionType(type);
-    setOptions([]);
-    setOptionCount(0);
+  const fontOptions = [
+    'NeoBold',
+    'NeoLight'
+  ];
+
+  // Quill 에디터 커스텀 모듈 정의
+  const Size = ReactQuill.Quill.import('attributors/style/size');
+  Size.whitelist = fontSizeArr;
+  ReactQuill.Quill.register(Size, true);
+
+  const Font = ReactQuill.Quill.import('formats/font');
+  Font.whitelist = fontOptions;
+  ReactQuill.Quill.register(Font, true);
+
+  // 기본 폰트 크기 지정을 위한 
+  const defaultStyle = {
+    font: 'NeoBold',
+    size: '16px'
   };
 
-  const handleOptionCountChange = (event) => {
-    const count = Math.min(parseInt(event.target.value), 6); // 최대 6개로 제한
-    setOptionCount(count);
-    setOptions(Array(count).fill(''));
-    setAnswers(Array(count).fill(false));
+  const handleContentChange = (value) => {
+    setContent(value);
   };
 
-  const handleOptionChange = (index, value) => {
-    const newOptions = [...options];
-    newOptions[index] = value;
-    setOptions(newOptions);
+  const handleTitleChange = (e) => {
+    setTitle(e.target.value);
   };
 
-  const handleAnswerChange = (index) => {
-    const newAnswers = [...answers];
-    newAnswers[index] = !newAnswers[index];
-    setAnswers(newAnswers);
+  const handleTagChange = (e) => {
+    setCurrentTag(e.target.value);
   };
 
-  // 이미지 업로드 부분
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
-    if (images.length + files.length > 2) {
-      setModalMessage('최대 2개의 이미지만 업로드할 수 있습니다.');
-      setOpenModal(true);
-      return;
+  const handleTagKeyDown = (e) => {
+    if (e.key === 'Enter' && currentTag.trim() !== '' && tags.length < 10) {
+      e.preventDefault();
+      const newTag = currentTag.trim().startsWith('#') ? currentTag.trim() : `#${currentTag.trim()}`;
+      setTags([...tags, newTag]);
+      setCurrentTag('');
     }
-
-    const newImages = files.map(file => ({
-      file,
-      preview: URL.createObjectURL(file)
-    }));
-    setImages(prevImages => [...prevImages, ...newImages]);
   };
 
-  const handleCloseModal = () => {
-    setOpenModal(false);
+  const removeTag = (tagToRemove) => {
+    setTags(tags.filter(tag => tag !== tagToRemove));
   };
 
-  const handleSubmit = (e) => {
+  const activateTagInput = (e) => {
     e.preventDefault();
-    if (!selectedCertificate) {
-      setCertificateError(true);
-      setTimeout(() => setCertificateError(false), 500);
-      return;
-    }
-    const newQuestion = {
-      type: questionType,
-      question: question,
-      options: questionType === '객관식' ? options : null,
-      answers: questionType === '객관식' ? answers : null,
-      note: questionType === '주관식' ? note : null,
-      images: images.map(img => img.preview),
-      certificate: selectedCertificate
-    };
-    setRegisteredQuestions([...registeredQuestions, newQuestion]);
-    resetForm();
+    e.stopPropagation();
+    setIsTagInputActive(true);
+    setCurrentTag('');  // '#'을 여기서 추가하지 않습니다.
   };
 
-  const resetForm = () => {
-    setQuestionType('');
-    setQuestion('');
-    setOptions([]);
-    setOptionCount(0);
-    setNote('');
-    setAnswers([]);
-    setImages([]);
-    setErrorMessage('');
-  };
-
-  const handleExternalSubmit = () => {
-    if (formRef.current) {
-      formRef.current.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+  const deactivateTagInput = () => {
+    if (currentTag.trim() !== '') {
+      const newTag = currentTag.trim().startsWith('#') ? currentTag.trim() : `#${currentTag.trim()}`;
+      setTags([...tags, newTag]);
     }
+    setCurrentTag('');
+    setIsTagInputActive(false);
   };
 
   useEffect(() => {
-    // Clean up the URLs when component unmounts
-    return () => {
-      images.forEach(image => URL.revokeObjectURL(image.preview));
+    const quill = document.querySelector('.ql-editor');
+    if (quill) {
+      quill.style.fontSize = '16px';
+    }
+    const sizePicker = document.querySelector('.ql-size .ql-picker-label');
+    if (sizePicker) {
+      sizePicker.setAttribute('data-value', '16px');
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isTagInputActive) {
+      tagInputRef.current?.focus();
+      // 커서를 '#' 다음으로 이동
+      tagInputRef.current?.setSelectionRange(1, 1);
+    }
+  }, [isTagInputActive]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (tagContainerRef.current && !tagContainerRef.current.contains(event.target)) {
+        deactivateTagInput();
+      }
     };
-  }, [images]);
 
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
-  // 문제 등록영역 퍼센트바 부분
-  const MAX_QUESTIONS = 40;
-  const progressPercentage = (registeredQuestions.length / MAX_QUESTIONS) * 100;
+  const modules = {
+    toolbar: {
+      container: [
+        [{ 'header': '1'}, {'header': '2'}, { 'font': fontOptions }],
+        [{ 'size': fontSizeArr }],  // 폰트 크기 옵션
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        ['bold', 'italic', 'underline'],
+        [{ 'color': [] }, { 'background': [] }],
+        [{ 'align': [] }],
+        ['link', 'image'],
+        ['clean']
+      ],
+    }
+  };
+  
+  const formats = [
+    'header', 'font', 'size',
+    'bold', 'italic', 'underline',
+    'list', 'bullet',
+    'color', 'background', 'align',
+    'link', 'image'
+  ];
 
   return (
-    <ThemeProvider theme={theme}>
-      <div className="jokbo-write-container">
-        <div className="question-register-background">
-          <div className="question-register-area">
-            <HeaderContainer>
-              <p><FontAwesomeIcon icon={faPenToSquare} /> 문제 등록</p>
-              <StyledAutocomplete
-                options={certificates}
-                renderInput={(params) => <TextField {...params} label="자격증 선택" />}
-                value={selectedCertificate}
-                onChange={(event, newValue) => {
-                  setSelectedCertificate(newValue);
-                }}
-                className={certificateError ? 'error' : ''}
-              />
-            </HeaderContainer>
-            <form ref={formRef} onSubmit={handleSubmit}>
-              <div className="question-type-buttons">
-                <Button
-                  onClick={() => handleQuestionTypeChange('객관식')}
-                  className={questionType === '객관식' ? 'active' : ''}
-                >
-                  객관식
-                </Button>
-                <Button
-                  onClick={() => handleQuestionTypeChange('주관식')}
-                  className={questionType === '주관식' ? 'active' : ''}
-                >
-                  주관식
-                </Button>
-              </div>
-
-              <TextField
-                label="문제"
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                fullWidth
-                margin="normal"
-              />
-
-              {questionType === '객관식' && (
-                <div>
-                  <div className="option-count-input">
-                    <TextField
-                      label="선택지 개수"
-                      type="number"
-                      value={optionCount}
-                      onChange={handleOptionCountChange}
-                      inputProps={{ min: 1, max: 6 }}
-                      fullWidth
-                      sx={{ width: '120px' }}  // Material-UI의 sx prop 사용
-                    />
-                  </div>
-                  {options.map((option, index) => (
-                    <div key={index} className="option-row">
-                      <TextField
-                        label={`선택지 ${index + 1}`}
-                        value={option}
-                        onChange={(e) => handleOptionChange(index, e.target.value)}
-                        fullWidth
-                        margin="normal"
-                      />
-                      <FormControlLabel
-                        control={
-                          <Checkbox
-                            checked={answers[index]}
-                            onChange={() => handleAnswerChange(index)}
-                            color="primary"
-                          />
-                        }
-                        label=""
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {questionType === '주관식' && (
-                <TextField
-                  label="유의사항"
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
-                  fullWidth
-                  margin="normal"
-                  multiline
-                  rows={4}
-                />
-              )}
-
-              {(questionType === '객관식' && optionCount > 0) || questionType === '주관식' ? (
-                <div className="image-upload-area">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    style={{ display: 'none' }}
-                    id="image-upload"
-                    multiple
-                  />
-                  <label htmlFor="image-upload" className="image-upload-button">
-                    <img src={addImageIcon} alt="이미지 추가" className="add-image-icon" />
-                  </label>
-                  <div className="preview-images">
-                    {images.map((image, index) => (
-                      <img key={index} src={image.preview} alt={`미리보기 ${index + 1}`} className="preview-image" />
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-              {errorMessage && <p className="error-message">{errorMessage}</p>}
-            </form>
-          </div>
-          {/* 문제 등록영역 퍼센트바 부분 */}
-          <div className="progress-area-background">
-            <div className="progress-area">
-              <div className="progress-info">
-                <p>{progressPercentage.toFixed(0)}% completed</p>
-                <LinearProgress variant="determinate" value={progressPercentage} />
-              </div>
-              <div className="button-group">
-                <Button
-                  onClick={handleExternalSubmit}
-                  variant="contained"
-                  color="primary"
-                  className="submit-button"
-                >
-                  <FontAwesomeIcon icon={faCheck} />
-                </Button>
-                <Button
-                  onClick={resetForm}
-                  variant="contained"
-                  color="secondary"
-                  className="reset-button"
-                >
-                  <FontAwesomeIcon icon={faRotateRight} />
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="registered-questions-area">
-          <p><FontAwesomeIcon icon={faNoteSticky} /> 등록된 문제</p>
-          {registeredQuestions.map((q, index) => (
-            <div key={index} className="registered-question">
-              <p className="question-title">
-                <span className="question-number">{index + 1}. </span>
-                {q.question}
-              </p>
-              {q.images && q.images.length > 0 && (
-                <div className="question-images">
-                  {q.images.map((image, i) => (
-                    <img key={i} src={image} alt={`문제 ${index + 1} 이미지 ${i + 1}`} className="preview-image" />
-                  ))}
-                </div>
-              )}
-              {q.type === '객관식' && (
-                <ol className="options-list">
-                  {q.options.map((option, i) => (
-                    <li
-                      key={i}
-                      className={`option-item ${q.answers[i] ? 'correct-answer' : ''}`}
-                    >
-                      {option}
-                    </li>
-                  ))}
-                </ol>
-              )}
-              {q.type === '주관식' && <p className="add-info">유의사항: {q.note}</p>}
-            </div>
-          ))}
-        </div>
-
-        <Button variant="contained" color="secondary" onClick={() => navigate('/board/jokbo')} style={{ marginTop: '20px', backgroundColor: '#413839' }}>
-          작성취소
-        </Button>
-
-        <StyledDialog open={openModal} onClose={handleCloseModal}>
-          <DialogTitle>알림</DialogTitle>
-          <DialogContent>
-            <p>{modalMessage}</p>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseModal} color="primary">
-              확인
-            </Button>
-          </DialogActions>
-        </StyledDialog>
+    <div className="jokbo-write-container">
+      <div className="jokbo-write-header">
+        <div onClick={() => navigate('/board/jokbo')} className="board-title">족보 게시판</div>
+        <input
+          type="text"
+          value={title}
+          onChange={handleTitleChange}
+          placeholder="제목을 입력하세요"
+          className="title-input"
+        />
       </div>
-    </ThemeProvider>
+      <div className="content-editor-container">
+        <ReactQuill
+          value={content}
+          onChange={handleContentChange}
+          modules={modules}
+          formats={formats}
+          className="content-editor"
+          defaultValue={`<p><span class="ql-size-16px">${defaultStyle.size}</span></p>`}
+        />
+        <div
+          ref={tagContainerRef}
+          className="tag-input-container"
+          onClick={activateTagInput}
+        >
+          {tags.map((tag, index) => (
+            <span key={index} className="tag">
+              {tag}
+              <button onClick={(e) => { e.stopPropagation(); removeTag(tag); }} className="remove-tag">×</button>
+            </span>
+          ))}
+          {isTagInputActive ? (
+            <input
+              ref={tagInputRef}
+              type="text"
+              value={currentTag}
+              onChange={handleTagChange}
+              onKeyDown={handleTagKeyDown}
+              className="tag-input"
+              placeholder="#"
+            />
+          ) : (
+            <span className="tag-placeholder">
+              {tags.length === 0 ? "#태그를 입력해주세요(최대 10개)" : "#"}
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
   );
-}
+};
 
 export default JokboWrite;

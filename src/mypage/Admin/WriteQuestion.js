@@ -323,7 +323,7 @@ function WriteQuestion({ onClose, onQuestionAdded, editingQuestion }) {
 
   return (
     <ThemeProvider theme={theme}>
-      <div className="jokbo-write-container">
+      <div className="cert-write-container">
         <div className="question-register-background">
           <div className="question-register-area">
             <HeaderContainer>
