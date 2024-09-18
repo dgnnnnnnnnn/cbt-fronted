@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import './jokbowritestyle.css';
+import { CiLock } from "react-icons/ci";
 
 const JokboWrite = () => {
   const [content, setContent] = useState('');
@@ -10,9 +11,12 @@ const JokboWrite = () => {
   const [tags, setTags] = useState([]);
   const [currentTag, setCurrentTag] = useState('');
   const [isTagInputActive, setIsTagInputActive] = useState(false);
+  const [price, setPrice] = useState('');
+  const [isPrivate, setIsPrivate] = useState(false);
   const tagInputRef = useRef(null);
   const tagContainerRef = useRef(null);
   const navigate = useNavigate();
+
 
   // 폰트 크기 옵션(toolbar에 들어갈 거)
   const fontSizeArr = ['8px', '9px', '10px', '11px', '12px', '14px', '16px', '18px', '20px', '22px', '24px', '26px', '28px', '36px'];
@@ -36,6 +40,7 @@ const JokboWrite = () => {
     font: 'NeoBold',
     size: '16px'
   };
+
 
   const handleContentChange = (value) => {
     setContent(value);
@@ -113,9 +118,9 @@ const JokboWrite = () => {
   const modules = {
     toolbar: {
       container: [
-        [{ 'header': '1'}, {'header': '2'}, { 'font': fontOptions }],
+        [{ 'header': '1' }, { 'header': '2' }, { 'font': fontOptions }],
         [{ 'size': fontSizeArr }],  // 폰트 크기 옵션
-        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
         ['bold', 'italic', 'underline'],
         [{ 'color': [] }, { 'background': [] }],
         [{ 'align': [] }],
@@ -124,7 +129,7 @@ const JokboWrite = () => {
       ],
     }
   };
-  
+
   const formats = [
     'header', 'font', 'size',
     'bold', 'italic', 'underline',
@@ -133,53 +138,105 @@ const JokboWrite = () => {
     'link', 'image'
   ];
 
+  const handlePriceChange = (e) => {
+    setPrice(e.target.value);
+  };
+
+  const handlePrivateChange = (e) => {
+    setIsPrivate(e.target.checked);
+  };
+
+  const handleSubmit = () => {
+    // 여기에 제출 로직을 구현하세요
+    console.log("글 등록 버튼이 클릭되었습니다.");
+  };
+
   return (
     <div className="jokbo-write-container">
-      <div className="jokbo-write-header">
-        <div onClick={() => navigate('/board/jokbo')} className="board-title">족보 게시판</div>
-        <input
-          type="text"
-          value={title}
-          onChange={handleTitleChange}
-          placeholder="제목을 입력하세요"
-          className="title-input"
-        />
+      <div className="jokbo-write-main">
+        <div className="jokbo-write-header">
+          <div onClick={() => navigate('/board/jokbo')} className="board-title">족보 게시판</div>
+        </div>
+        <div className="title-input-container">
+          <input
+            type="text"
+            value={title}
+            onChange={handleTitleChange}
+            placeholder="제목을 입력하세요"
+            className="title-input"
+          />
+          <div className="title-border"></div>
+        </div>
+        <div className="content-editor-container">
+          <ReactQuill
+            value={content}
+            onChange={handleContentChange}
+            modules={modules}
+            formats={formats}
+            className="content-editor"
+            defaultValue={`<p><span class="ql-size-16px">${defaultStyle.size}</span></p>`}
+          />
+          <div
+            ref={tagContainerRef}
+            className="tag-input-container"
+            onClick={activateTagInput}
+          >
+            {tags.map((tag, index) => (
+              <span key={index} className="tag">
+                {tag}
+                <button onClick={(e) => { e.stopPropagation(); removeTag(tag); }} className="remove-tag">×</button>
+              </span>
+            ))}
+            {isTagInputActive ? (
+              <input
+                ref={tagInputRef}
+                type="text"
+                value={currentTag}
+                onChange={handleTagChange}
+                onKeyDown={handleTagKeyDown}
+                className="tag-input"
+                placeholder="#"
+              />
+            ) : (
+              <span className="tag-placeholder">
+                {tags.length === 0 ? "#태그를 입력해주세요(최대 10개)" : "#"}
+              </span>
+            )}
+          </div>
+        </div>
       </div>
-      <div className="content-editor-container">
-        <ReactQuill
-          value={content}
-          onChange={handleContentChange}
-          modules={modules}
-          formats={formats}
-          className="content-editor"
-          defaultValue={`<p><span class="ql-size-16px">${defaultStyle.size}</span></p>`}
-        />
-        <div
-          ref={tagContainerRef}
-          className="tag-input-container"
-          onClick={activateTagInput}
-        >
-          {tags.map((tag, index) => (
-            <span key={index} className="tag">
-              {tag}
-              <button onClick={(e) => { e.stopPropagation(); removeTag(tag); }} className="remove-tag">×</button>
-            </span>
-          ))}
-          {isTagInputActive ? (
+      <button onClick={handleSubmit} className="jokbo-temporarily-submit-button">임시등록</button>
+      <button onClick={handleSubmit} className="jokbo-submit-button">등록</button>
+      <div className="jokbo-write-sidebar">
+        <div className="sidebar-top-border"></div>
+        <div className="additional-settings">
+          <h3 className="settings-title">추가 설정</h3>
+          <div className="setting-item">
+            <label className="setting-label" htmlFor="price-input">ㄴ 가격 설정 : </label>
             <input
-              ref={tagInputRef}
-              type="text"
-              value={currentTag}
-              onChange={handleTagChange}
-              onKeyDown={handleTagKeyDown}
-              className="tag-input"
-              placeholder="#"
+              id="price-input"
+              type="number"
+              value={price}
+              onChange={handlePriceChange}
+              placeholder="가격을 입력하세요"
+              className="setting-input"
             />
-          ) : (
-            <span className="tag-placeholder">
-              {tags.length === 0 ? "#태그를 입력해주세요(최대 10개)" : "#"}
-            </span>
-          )}
+          </div>
+          <div className="setting-item">
+            <label className="setting-checkbox-container">
+              ㄴ&nbsp;
+              <input
+                type="checkbox"
+                checked={isPrivate}
+                onChange={handlePrivateChange}
+                className="setting-checkbox-input"
+              />
+              <span className="setting-checkbox-custom">
+                <CiLock className="setting-checkbox-icon" />
+              </span>
+              <span className="setting-checkbox-label">비밀글로 설정</span>
+            </label>
+          </div>
         </div>
       </div>
     </div>
