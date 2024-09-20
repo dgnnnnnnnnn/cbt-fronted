@@ -4,6 +4,17 @@
   src: url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-aLt.eot?#iefix) format("embedded-opentype"), url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-aLt.woff) format("woff"), url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-aLt.ttf) format("truetype");
 }
 
+@font-face {
+  font-family: 'NanumSquareNeoBold';
+  src: url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-bRg.eot);
+  src: url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-bRg.eot?#iefix) format("embedded-opentype"), 
+       url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-bRg.woff) format("woff"), 
+       url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-bRg.ttf) format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+
 * {
   margin: 0;
   padding: 0;
@@ -11,7 +22,7 @@
 }
 
 body {
-  font-family: Montserrat, sans-serif;
+  font-family: 'NanumSquareNeoBold', sans-serif !important;
   /* background: linear-gradient(-45deg, #9c27b0, #673ab7); */
   background-size: 100% 200%;
   color: #000000;
@@ -169,6 +180,7 @@ body {
 
 .menu-item.first-item {
   padding: 1.5rem 1rem;
+  font-family: 'NanumSquareNeoBold', sans-serif !important;
 }
 
 .navbar .dropdown:hover .dropdown-menu {
@@ -414,9 +426,9 @@ h1 {
     transform: rotate(90deg);
   }
 
-  .menu-item.first-item {
+  /* .menu-item.first-item {
     padding: 1rem 1rem;
-  }
+  } */
 
   /* DROPDOWN, MEGA MENUS */
   .menu-items .dropdown-menu,

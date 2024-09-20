@@ -49,9 +49,9 @@ function UserSubmenu() {
                         </Link>
                     </div>
                     <div className="user-submenu-bottom">
-                        <Link to="/purchase-history" className="submenu-button">구매내역</Link>
-                        <Link to="/edit-profile" className="submenu-button">정보수정</Link>
-                        <Link to="/find-certificate" className="submenu-button">자격증 찾기</Link>
+                        <Link to="/purchase-history" className="submenu-button">포인트 관리</Link>
+                        <Link to="/edit-profile" className="submenu-button">내 계정</Link>
+                        <Link to="/find-certificate" className="submenu-button">라이브러리</Link>
                     </div>
                 </div>
             )}

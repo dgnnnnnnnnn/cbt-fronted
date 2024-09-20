@@ -9,7 +9,7 @@ import Depart from './department/Depart.js'; // 학과페이지(Link는 Menu.js�
 import JokboBoard from './Board/JokboBoard.js'; // 족보게시판
 import CertificationBoard from './Board/CertificationBoard/CertificationBoard.js'
 import FreeBoard from './Board/FreeBoard/FreeBoard.js'
-import MyPage from './mypage/MyPage.js'
+import MypageRoutes from './mypage/MypageRoutes.js'
 
 import React, { useState } from 'react';
 import { Routes, Route, Link, Switch } from 'react-router-dom'
@@ -166,7 +166,7 @@ function App() {
             <Route path="/board/jokbo/*" element={<JokboBoard />}/>
             <Route path="/board/cert/*" element={<CertificationBoard />}/>
             <Route path="/board/free/*" element={<FreeBoard />}/>
-            <Route path="/mypage" element={<MyPage />}/>
+            <Route path="/mypage/*" element={<MypageRoutes />}/>
           </Routes>
         </div>
 

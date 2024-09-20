@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCog, faBook, faPencilAlt, faChartBar, faToolbox, faCaretDown } from '@fortawesome/free-solid-svg-icons';
+import { faCog, faSackDollar, faBook, faPencilAlt, faChartBar, faToolbox, faCaretDown } from '@fortawesome/free-solid-svg-icons';
+import { Outlet, useNavigate } from 'react-router-dom';
 import RotatingGradientBorder from '../menu/RotatingGradientBorder';
 import userimg from '../img/userimg/user-img2.png';
+import PointSet from './User/Point/PointSet';
+import Library from './User/Library/Library';
 import AdminSetQuestion from './Admin/AdminSetQuestion';
 import './mypage.css';
 
@@ -10,11 +13,12 @@ const MyPage = () => {
   const [selectedMenu, setSelectedMenu] = useState(null);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const userLevel = 7; // 임시로 사용자 레벨 하드코딩
+  const navigate = useNavigate();
 
   const menuItems = [
+    { id: 'point', icon: faSackDollar, label: '포인트 관리' },
     { id: 'edit', icon: faCog, label: '정보수정' },
-    { id: 'purchased', icon: faBook, label: '구매한 족보' },
-    { id: 'written', icon: faPencilAlt, label: '작성한 족보' },
+    { id: 'library', icon: faBook, label: '라이브러리'},
     { id: 'frequently', icon: faChartBar, label: '자주 공부한 내역' },
   ];
 
@@ -26,8 +30,12 @@ const MyPage = () => {
 
   const handleMenuClick = (id) => {
     setSelectedMenu(id);
-    if (id !== 'admin') {
-      // setIsAdminOpen(false); 
+    if (id === 'point') {
+      navigate('point-set');
+    } else if (id === 'admin1') {
+      navigate('admin-setquestion');
+    } else {
+      navigate('');
     }
   };
 
@@ -43,12 +51,12 @@ const MyPage = () => {
 
     // 선택된 메뉴에 따라 다른 내용을 렌더링
     switch (selectedMenu) {
+      case 'point':
+        return <PointSet></PointSet>
       case 'edit':
         return <div>정보수정 내용</div>;
-      case 'purchased':
-        return <div>구매한 족보 목록</div>;
-      case 'written':
-        return <div>작성한 족보 목록</div>;
+      case 'library':
+        return <Library></Library>;
       case 'frequently':
         return <div>자주 공부한 내역</div>;
       case 'admin1':
