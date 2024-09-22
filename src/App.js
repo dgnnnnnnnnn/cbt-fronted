@@ -22,6 +22,7 @@ const queryClient = new QueryClient();
 function App() {
 
   const [isHovered, setIsHovered] = useState(false);
+  const [isMenuHovered, setIsMenuHovered] = useState(false); // 추가
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -33,7 +34,7 @@ function App() {
 
         { /* 메뉴바 import */}
         <div>
-          <MenuBar setIsHovered={setIsHovered} />  { /* 블러처리를 위한 상태함수 전달 */}
+          <MenuBar isHovered={isMenuHovered} setIsHovered={setIsMenuHovered} />  { /* 블러처리를 위한 상태함수 전달 */}
         </div>
 
         { /* 리액트 라우터 --> 상세페이지 */}
